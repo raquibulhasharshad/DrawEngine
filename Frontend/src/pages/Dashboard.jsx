@@ -199,7 +199,12 @@ const Dashboard = () => {
       setPassForm({ current: '', next: '', confirm: '' });
       setTimeout(() => setSettingsSuccess(''), 3000);
     } catch (err) {
-      setSettingsError(err.response?.data?.error || 'Rotation failed');
+      const serverError = err.response?.data?.error || 'Rotation failed';
+      if (serverError.toLowerCase().includes('current password')) {
+        setFieldErrors({ current: serverError });
+      } else {
+        setSettingsError(serverError);
+      }
     } finally {
       setSettingsLoading(false);
     }
@@ -221,6 +226,14 @@ const Dashboard = () => {
 
     setSettingsLoading(true);
     setSettingsError('');
+    
+    // Initial client-side verification
+    if (deleteForm.email !== user.email) {
+      setFieldErrors({ email: 'Email address does not match your active identity' });
+      setSettingsLoading(false);
+      return;
+    }
+
     triggerConfirm(
       'Nuclear Purge',
       'Executing this protocol will permanently destroy your identity and all associated vector clusters. This action is irreversible.',
@@ -230,7 +243,14 @@ const Dashboard = () => {
           logout();
           navigate('/login');
         } catch (err) {
-          setSettingsError(err.response?.data?.error || 'Purge failed');
+          const serverError = err.response?.data?.error || 'Purge failed';
+          if (serverError.toLowerCase().includes('email')) {
+            setFieldErrors({ email: serverError });
+          } else if (serverError.toLowerCase().includes('password') || serverError.toLowerCase().includes('key')) {
+            setFieldErrors({ password: serverError });
+          } else {
+            setSettingsError(serverError);
+          }
         } finally {
           setSettingsLoading(false);
         }

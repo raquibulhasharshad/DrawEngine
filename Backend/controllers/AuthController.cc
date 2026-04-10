@@ -265,6 +265,7 @@ void AuthController::deleteAccount(const HttpRequestPtr &req, std::function<void
 
             auto row = result[0];
             std::string storedHash = row["password_hash"].as<std::string>();
+            std::string storedEmail = row["email"].as<std::string>();
             bool isCorrect = false;
 
             if (storedHash.find(':') != std::string::npos) {
@@ -273,9 +274,18 @@ void AuthController::deleteAccount(const HttpRequestPtr &req, std::function<void
                 isCorrect = (password == storedHash);
             }
 
-            if (email != row["email"].as<std::string>() || !isCorrect) {
+            if (email != storedEmail) {
                 Json::Value ret;
-                ret["error"] = "Invalid verification credentials";
+                ret["error"] = "Registry email does not match identity";
+                auto res = HttpResponse::newHttpJsonResponse(ret);
+                res->setStatusCode(k401Unauthorized);
+                callback(res);
+                return;
+            }
+
+            if (!isCorrect) {
+                Json::Value ret;
+                ret["error"] = "Incorrect verification key";
                 auto res = HttpResponse::newHttpJsonResponse(ret);
                 res->setStatusCode(k401Unauthorized);
                 callback(res);
