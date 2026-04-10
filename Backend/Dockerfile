@@ -7,6 +7,7 @@ FROM debian:bullseye-slim AS builder
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
+    ninja-build \
     git \
     curl \
     zip \
@@ -17,6 +18,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     uuid-dev \
     zlib1g-dev \
+    bison \
+    flex \
     && rm -rf /var/lib/apt/lists/*
 
 # Install vcpkg
@@ -34,8 +37,9 @@ COPY . .
 
 # Build dependencies and application
 RUN mkdir build && cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake && \
-    cmake --build . --parallel $(nproc)
+    cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake && \
+    ninja && \
+    ninja install
 
 # Stage 2: Runtime image
 FROM debian:bullseye-slim
