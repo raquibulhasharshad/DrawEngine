@@ -115,7 +115,8 @@ void AuthController::login(const HttpRequestPtr &req, std::function<void(const H
                 Cookie authCookie("auth_token", token);
                 authCookie.setHttpOnly(true);
                 authCookie.setPath("/");
-                authCookie.setSameSite(Cookie::SameSite::kLax); 
+                authCookie.setSameSite(Cookie::SameSite::kNone); 
+                authCookie.setSecure(true);
                 res->addCookie(authCookie);
                 
                 callback(res);
@@ -307,6 +308,8 @@ void AuthController::logout(const HttpRequestPtr &req, std::function<void(const 
     Cookie authCookie("auth_token", "");
     authCookie.setExpiresDate(trantor::Date::now().after(-86400)); // 1 day ago
     authCookie.setPath("/");
+    authCookie.setSameSite(Cookie::SameSite::kNone);
+    authCookie.setSecure(true);
     res->addCookie(authCookie);
     
     Json::Value ret;
