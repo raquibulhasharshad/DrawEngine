@@ -43,8 +43,7 @@ COPY . .
 # Build dependencies and application
 RUN mkdir build && cd build && \
     cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake && \
-    ninja && \
-    ninja install
+    ninja
 
 # Stage 2: Runtime image
 FROM debian:bullseye-slim
