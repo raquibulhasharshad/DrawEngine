@@ -200,8 +200,8 @@ const Dashboard = () => {
       setTimeout(() => setSettingsSuccess(''), 3000);
     } catch (err) {
       const serverError = err.response?.data?.error || 'Rotation failed';
-      if (serverError.toLowerCase().includes('current password')) {
-        setFieldErrors({ current: serverError });
+      if (serverError.toLowerCase().includes('incorrect password')) {
+        setFieldErrors({ current: 'Incorrect password' });
       } else {
         setSettingsError(serverError);
       }
@@ -246,8 +246,8 @@ const Dashboard = () => {
           const serverError = err.response?.data?.error || 'Purge failed';
           if (serverError.toLowerCase().includes('email')) {
             setFieldErrors({ email: serverError });
-          } else if (serverError.toLowerCase().includes('password') || serverError.toLowerCase().includes('key')) {
-            setFieldErrors({ password: serverError });
+          } else if (serverError.toLowerCase().includes('incorrect password')) {
+            setFieldErrors({ password: 'Incorrect password' });
           } else {
             setSettingsError(serverError);
           }

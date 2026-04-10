@@ -208,7 +208,7 @@ void AuthController::changePassword(const HttpRequestPtr &req, std::function<voi
 
             if (!isCorrect) {
                 Json::Value ret;
-                ret["error"] = "Incorrect current password";
+                ret["error"] = "Incorrect password";
                 auto res = HttpResponse::newHttpJsonResponse(ret);
                 res->setStatusCode(k401Unauthorized);
                 callback(res);
@@ -285,7 +285,7 @@ void AuthController::deleteAccount(const HttpRequestPtr &req, std::function<void
 
             if (!isCorrect) {
                 Json::Value ret;
-                ret["error"] = "Incorrect verification key";
+                ret["error"] = "Incorrect password";
                 auto res = HttpResponse::newHttpJsonResponse(ret);
                 res->setStatusCode(k401Unauthorized);
                 callback(res);
