@@ -8,7 +8,7 @@ using namespace drogon;
 
 int main() {
     // Force SSL for PostgreSQL (required for Neon DB)
-    _putenv("PGSSLMODE=require");
+    putenv((char*)"PGSSLMODE=require");
 
     // 1. Environment Overrides
     const char* portEnv = std::getenv("PORT");
@@ -26,12 +26,8 @@ int main() {
         // Override settings from environment
         app().addListener("0.0.0.0", port);
         
-        if (jwtSecret) {
-            app().setCustomConfigValue("jwt_secret", jwtSecret);
-        }
-
         // Global CORS Handler
-        app().registerPostRoutingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
+        app().registerPostHandlingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
             res->addHeader("Access-Control-Allow-Origin", allowedOrigin);
             res->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             res->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
