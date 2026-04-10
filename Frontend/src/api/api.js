@@ -13,6 +13,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      const url = error.config.url;
+      // Exclude settings-related 401s (Incorrect Password) from global logout redirect
+      if (url.includes('/user/password') || url.includes('/user/delete')) {
+        return Promise.reject(error);
+      }
+
       // Clear legacy storage if any
       localStorage.removeItem('draw_engine_token');
       localStorage.removeItem('draw_engine_user');
