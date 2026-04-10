@@ -84,6 +84,26 @@ int main() {
         
         // --- Endpoints ---
 
+        // 1. Pre-Routing Advice: Handle OPTIONS (Preflight) requests
+        app().registerPreRoutingAdvice([allowedOrigin](const HttpRequestPtr &req, AdviceCallback &&acb, AdviceChainCallback &&accb) {
+            if (req->method() == Options) {
+                auto res = HttpResponse::newHttpResponse();
+                std::string requestOrigin = req->getHeader("Origin");
+                
+                // Allow exact match or wildcard if specified
+                if (allowedOrigin == "*" || allowedOrigin == requestOrigin) {
+                    res->addHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
+                    res->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                    res->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+                    res->addHeader("Access-Control-Allow-Credentials", "true");
+                    res->setStatusCode(k204NoContent);
+                    acb(res);
+                    return;
+                }
+            }
+            accb();
+        });
+
         // Diagnostic Health Check
         app().registerHandler("/api/health", [](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
             Json::Value ret;
@@ -92,12 +112,11 @@ int main() {
             callback(HttpResponse::newHttpJsonResponse(ret));
         }, {Get});
 
-        // Global CORS Handler (Production Grade)
+        // 2. Post-Handling Advice: Add CORS headers to all normal responses
         app().registerPostHandlingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
             std::string requestOrigin = req->getHeader("Origin");
             
             if (allowedOrigin == "*" || allowedOrigin == requestOrigin) {
-                // Use remove+add to ensure we don't send duplicate headers (compatible with all Drogon versions)
                 res->removeHeader("Access-Control-Allow-Origin");
                 res->addHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
                 
