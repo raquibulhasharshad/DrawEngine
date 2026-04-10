@@ -1,0 +1,13 @@
+{
+  "name": "drawengine",
+  "version-string": "0.1.0",
+  "builtin-baseline": "baababd134e882ca22d7432a915fc6feae882ce0",
+  "dependencies": [
+    {
+      "name": "drogon",
+      "features": [
+        "postgres"
+      ]
+    }
+  ]
+}

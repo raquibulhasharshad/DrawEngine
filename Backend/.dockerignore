@@ -1,0 +1,7 @@
+build/
+vcpkg_installed/
+vcpkg/
+.env
+.git
+.vscode
+*.log

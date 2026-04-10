@@ -1,0 +1,52 @@
+{
+    "listeners": [
+        {
+            "address": "0.0.0.0",
+            "port": 8080,
+            "https": false
+        }
+    ],
+    "db_clients": [
+        {
+            "name": "default",
+            "rdbms": "postgresql",
+            "host": "ep-icy-sky-ank768i1-pooler.c-6.us-east-1.aws.neon.tech",
+            "port": 5432,
+            "dbname": "neondb",
+            "user": "neondb_owner",
+            "passwd": "npg_Iv6mEuZcX5bN",
+            "is_fast": false,
+            "connection_number": 5
+        }
+    ],
+    "app": {
+        "number_of_threads": 0,
+        "enable_session": false,
+        "session_timeout": 0,
+        "document_root": "./",
+        "home_page": "index.html",
+        "use_gzip": true,
+        "static_file_headers": [],
+        "upload_path": "uploads",
+        "file_types": [
+            "gif", "png", "jpg", "js", "html", "css", "ico"
+        ],
+        "mime_prefixes": [],
+        "max_connections": 0,
+        "max_connections_per_ip": 0,
+        "log": {
+            "log_path": "./",
+            "logfile_base_name": "",
+            "log_size_limit": 100000000,
+            "max_run_time": 100000000,
+            "log_level": "DEBUG",
+            "display_local_time": true
+        },
+        "run_as_daemon": false,
+        "handle_sigterm": true,
+        "rebind_port": false,
+        "custom_config": {
+            "jwt_secret": "your_ultra_secret_key_change_this"
+        }
+    }
+}

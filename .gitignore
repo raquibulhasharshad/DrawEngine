@@ -1,0 +1,35 @@
+# --- C++ / Backend ---
+Backend/build/
+Backend/vcpkg_installed/
+Backend/vcpkg/
+Backend/.env
+Backend/*.log
+
+# --- Node / Frontend ---
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.production.local
+Frontend/*.log
+
+# --- OS / IDE ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.user
+*.userosscache
+*.sln
+*.vcxproj
+*.filters
+
+# --- Artifacts ---
+.gemini/
+.antigravity/
+brain/
+scratch/
+implementation_plan.md
+task.md
+walkthrough.md
