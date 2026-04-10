@@ -97,12 +97,18 @@ int main() {
             std::string requestOrigin = req->getHeader("Origin");
             
             if (allowedOrigin == "*" || allowedOrigin == requestOrigin) {
-                // Use putHeader to ensure we don't send duplicate headers
-                res->removeHeader("Access-Control-Allow-Origin"); // Clean start
-                res->putHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
-                res->putHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-                res->putHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-                res->putHeader("Access-Control-Allow-Credentials", "true");
+                // Use remove+add to ensure we don't send duplicate headers (compatible with all Drogon versions)
+                res->removeHeader("Access-Control-Allow-Origin");
+                res->addHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
+                
+                res->removeHeader("Access-Control-Allow-Methods");
+                res->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                
+                res->removeHeader("Access-Control-Allow-Headers");
+                res->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+                
+                res->removeHeader("Access-Control-Allow-Credentials");
+                res->addHeader("Access-Control-Allow-Credentials", "true");
             }
         });
 
