@@ -33,22 +33,23 @@ int main() {
     std::string allowedOrigin = allowedOriginEnv ? allowedOriginEnv : "*";
 
     try {
-        // Load base config
-        Json::Value config;
-        std::ifstream ifs("./config.json");
-        if (ifs.is_open()) {
-            ifs >> config;
-        }
+        // 2. Load base config file
+        app().loadConfigFile("./config.json");
 
-        // Override DB if environment variable is present
+        // 3. Override DB if environment variable is present
         if (dbUrlEnv) {
-            parseDatabaseUrl(dbUrlEnv, config["db_clients"][0]);
+            Json::Value dbClientConfig;
+            dbClientConfig["name"] = "default";
+            dbClientConfig["rdbms"] = "postgresql";
+            parseDatabaseUrl(dbUrlEnv, dbClientConfig);
+            dbClientConfig["is_fast"] = false;
+            dbClientConfig["connection_number"] = 5;
+            
+            app().addDbClient(dbClientConfig);
         }
 
-        // Override Port
-        config["listeners"][0]["port"] = port;
-
-        app().loadConfig(config);
+        // 4. Override Port
+        app().addListener("0.0.0.0", port);
         
         // Global CORS Handler (Production Grade)
         app().registerPostHandlingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
