@@ -13,13 +13,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      const url = error.config.url;
-      // Exclude settings-related 401s (Incorrect Password) from global logout redirect
-      if (url.includes('/user/password') || url.includes('/user/delete')) {
+      // If the server provided a specific error message (like 'Incorrect password'), 
+      // it's a validation error, not a session expiry. Stay on the screen.
+      if (error.response.data && error.response.data.error) {
         return Promise.reject(error);
       }
 
-      // Clear legacy storage if any
+      // If no error message was provided, the session has truly expired.
       localStorage.removeItem('draw_engine_token');
       localStorage.removeItem('draw_engine_user');
       
