@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y \
     autoconf \
     automake \
     libtool \
+    linux-libc-dev \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Install vcpkg
