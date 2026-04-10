@@ -33,23 +33,39 @@ int main() {
     std::string allowedOrigin = allowedOriginEnv ? allowedOriginEnv : "*";
 
     try {
-        // 2. Load base config file
-        app().loadConfigFile("./config.json");
+        // 2. Load base config and override in-memory
+        Json::Value config;
+        std::ifstream ifs("./config.json");
+        if (ifs.is_open()) {
+            ifs >> config;
+            ifs.close();
+        }
 
         // 3. Override DB if environment variable is present
         if (dbUrlEnv) {
-            Json::Value dbClientConfig;
-            dbClientConfig["name"] = "default";
-            dbClientConfig["rdbms"] = "postgresql";
-            parseDatabaseUrl(dbUrlEnv, dbClientConfig);
-            dbClientConfig["is_fast"] = false;
-            dbClientConfig["connection_number"] = 5;
-            
-            app().addDbClient(dbClientConfig);
+            Json::Value& dbConfig = config["db_clients"][0];
+            dbConfig["name"] = "default";
+            dbConfig["rdbms"] = "postgresql";
+            parseDatabaseUrl(dbUrlEnv, dbConfig);
+            dbConfig["is_fast"] = false;
+            dbConfig["connection_number"] = 5;
         }
 
         // 4. Override Port
-        app().addListener("0.0.0.0", port);
+        if (!config.isMember("listeners")) config["listeners"] = Json::arrayValue;
+        if (config["listeners"].empty()) config["listeners"].append(Json::Value());
+        config["listeners"][0]["port"] = port;
+        config["listeners"][0]["address"] = "0.0.0.0";
+
+        // 5. Write to runtime config file
+        std::ofstream ofs("./config_runtime.json");
+        Json::StreamWriterBuilder swb;
+        std::unique_ptr<Json::StreamWriter> sw(swb.newStreamWriter());
+        sw->write(config, &ofs);
+        ofs.close();
+
+        // 6. Load the generated config
+        app().loadConfigFile("./config_runtime.json");
         
         // Global CORS Handler (Production Grade)
         app().registerPostHandlingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
