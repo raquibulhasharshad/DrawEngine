@@ -95,11 +95,14 @@ int main() {
         // Global CORS Handler (Production Grade)
         app().registerPostHandlingAdvice([allowedOrigin](const HttpRequestPtr &req, const HttpResponsePtr &res) {
             std::string requestOrigin = req->getHeader("Origin");
+            
             if (allowedOrigin == "*" || allowedOrigin == requestOrigin) {
-                res->addHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
-                res->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-                res->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-                res->addHeader("Access-Control-Allow-Credentials", "true");
+                // Use putHeader to ensure we don't send duplicate headers
+                res->removeHeader("Access-Control-Allow-Origin"); // Clean start
+                res->putHeader("Access-Control-Allow-Origin", requestOrigin.empty() ? allowedOrigin : requestOrigin);
+                res->putHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                res->putHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+                res->putHeader("Access-Control-Allow-Credentials", "true");
             }
         });
 
@@ -162,6 +165,14 @@ int main() {
             authCtrl->updateProfile(req, std::move(callback));
         }, {Post, "filters::JwtFilter"});
 
+        app().registerHandler("/api/user/password", [authCtrl](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
+            authCtrl->changePassword(req, std::move(callback));
+        }, {Post, "filters::JwtFilter"});
+
+        app().registerHandler("/api/user/delete", [authCtrl](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
+            authCtrl->deleteAccount(req, std::move(callback));
+        }, {Post, "filters::JwtFilter"});
+
         app().registerHandler("/api/user/logout", [authCtrl](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
             authCtrl->logout(req, std::move(callback));
         }, {Post});
@@ -182,6 +193,10 @@ int main() {
         app().registerHandler("/api/designs/{id}", [designCtrl](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback, int id) {
             designCtrl->remove(req, std::move(callback), id);
         }, {Delete, "filters::JwtFilter"});
+        
+        app().registerHandler("/api/designs/batch-delete", [designCtrl](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
+            designCtrl->removeBatch(req, std::move(callback));
+        }, {Post, "filters::JwtFilter"});
 
         app().run();
     } catch (const std::exception &e) {
