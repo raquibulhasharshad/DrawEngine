@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     bison \
     flex \
+    autoconf \
+    automake \
+    libtool \
     && rm -rf /var/lib/apt/lists/*
 
 # Install vcpkg
