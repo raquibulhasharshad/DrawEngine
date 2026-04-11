@@ -104,13 +104,6 @@ int main() {
             accb();
         });
 
-        // Root Handler (to prevent 404 on cronjobs/ping services hitting /)
-        app().registerHandler("/", [](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
-            auto res = HttpResponse::newHttpResponse();
-            res->setBody("DrawEngine Backend is active.");
-            callback(res);
-        }, {Get});
-
         // Diagnostic Health Check
         app().registerHandler("/api/health", [](const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)> &&callback) {
             Json::Value ret;
